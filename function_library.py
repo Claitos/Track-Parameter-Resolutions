@@ -94,8 +94,8 @@ sigma_detectorresolution_inner_z = 5 * 10**-6      #spatial resolution of the IT
 sigma_detectorresolution_outer_rphi = 10 * 10**-6   #spatial resolution of the ITS2 outer layers in rphi in meters
 sigma_detectorresolution_outer_z = 10 * 10**-6      #spatial resolution of the ITS2 outer layers in z    in meters
 
-layerthickness_inner = 0.0035  # thickness of an inner detector plane in units of radiation length 0.35%
-layerthickness_outer = 0.008   # thickness of an outer detector plane in units of radiation length 0.8%
+layerthickness_inner = 0.0036   # thickness of an inner detector plane in units of radiation length 0.36%
+layerthickness_outer = 0.0110   # thickness of an outer detector plane in units of radiation length 1.10%
 
 radiation_length_air = 303.9           # radiation length of air in meters
 
