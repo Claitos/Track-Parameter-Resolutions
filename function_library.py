@@ -11,12 +11,27 @@ def get_rms_ScatteringAngle(momentum, mass, material_thickness):             # c
     return 1/(beta*momentum) * f 
 
 
-def get_air_thickness(radiation_length_air, average_layer_radii, IU_layer):    # helper function to calculate the amount of air in between the ITS layers in units of radiation length
-    air_thickness = []
-    air_thickness.append(10**(-90))                                          # to create 7th entry
+def get_circ_arc_length(momentum, chord_length):                                # calculates the length of a circular arc with given particle momentum and chord length
+    radius_of_curvature = 1/(0.3*magnetic_field_strength) * momentum                              # radius of the curvature of the particle trajectory in meters
+    return 2 * radius_of_curvature * np.arcsin(chord_length / (2 * radius_of_curvature))     # length of the circular arc in meters
+
+
+def get_air_thickness_straight(radiation_length_air, average_layer_radii, IU_layer):    # helper function to calculate the amount of air in between the ITS layers in units of radiation length
+    distances_between_layers = []
+    distances_between_layers.append(10**(-90))                                          # to create 7th entry
     for i in range(len(average_layer_radii)-1):
-        air_thickness.append(average_layer_radii[i+1] - average_layer_radii[i])
-    air_thickness = np.array(air_thickness) / radiation_length_air
+        distances_between_layers.append(average_layer_radii[i+1] - average_layer_radii[i])
+    air_thickness = np.array(distances_between_layers) / radiation_length_air
+    return air_thickness[IU_layer:]
+
+
+def get_air_thickness_parabolic(radiation_length_air, average_layer_radii, IU_layer, momentum):    # helper function to calculate the amount of air in between the ITS layers in units of radiation length
+    distances_between_layers = []
+    distances_between_layers.append(10**(-90))                                          # to create 7th entry
+    for i in range(len(average_layer_radii)-1):
+        distances_between_layers.append(average_layer_radii[i+1] - average_layer_radii[i])
+    distances_between_layers_corr = get_circ_arc_length(momentum, np.array(distances_between_layers))
+    air_thickness = np.array(distances_between_layers_corr) / radiation_length_air
     return air_thickness[IU_layer:]
 
 
@@ -69,10 +84,18 @@ def get_momentum_reso(cov_para, momentum, magnetic_field_strength):       # Mome
     return momentum / (0.3*magnetic_field_strength) * np.sqrt(cov_para[2][2])
 
 
-def get_pos_reso_MS_extrapolation(momentum, mass, extrapolation_radius, radiation_length_air):                         # Position resolution contribution from MS in air during extrapolation (straight extrapolation simulated)
+def get_pos_reso_MS_extrapolation_straight(momentum, mass, extrapolation_radius, radiation_length_air):                         # Position resolution contribution from MS in air during extrapolation (straight extrapolation simulated)
     air_thickness_extrapolation = extrapolation_radius / radiation_length_air
     sigma_ScatteringAngle_extrapolation = get_rms_ScatteringAngle(momentum, mass, air_thickness_extrapolation)
     posreso_MS_extrapolation = sigma_ScatteringAngle_extrapolation * extrapolation_radius
+    return posreso_MS_extrapolation
+
+def get_pos_reso_MS_extrapolation_parabolic(momentum, mass, extrapolation_radius, radiation_length_air):                # Position resolution contribution from MS in air during extrapolation (parabolic extrapolation simulated)
+    radius_of_curvature = 1/(0.3*magnetic_field_strength) * momentum
+    circ_length = 2*radius_of_curvature * np.arcsin(extrapolation_radius / (2*radius_of_curvature))
+    air_thickness_extrapolation = circ_length / radiation_length_air
+    sigma_ScatteringAngle_extrapolation = get_rms_ScatteringAngle(momentum, mass, air_thickness_extrapolation)
+    posreso_MS_extrapolation = sigma_ScatteringAngle_extrapolation * circ_length
     return posreso_MS_extrapolation
 
 
@@ -116,7 +139,7 @@ def transverse_impactparameter_reso(momentum, mass, N, r):
 
     layer_thickness = get_layers(layerthickness_inner, layerthickness_outer, IU_layer)
     sigma_ScatteringAngle_layer = get_rms_ScatteringAngle(momentum, mass, layer_thickness)
-    air_thickness = get_air_thickness(radiation_length_air, average_layer_radii, IU_layer)
+    air_thickness = get_air_thickness_parabolic(radiation_length_air, average_layer_radii, IU_layer, momentum)
     sigma_ScatteringAngle_air = get_rms_ScatteringAngle(momentum, mass, air_thickness)
     sigma_ScatteringAngle_air[0] = 0
     sigma_ScatteringAngle_total = sigma_ScatteringAngle_layer + sigma_ScatteringAngle_air
@@ -133,7 +156,7 @@ def transverse_impactparameter_reso(momentum, mass, N, r):
     cov_para_det_parabolic = get_cov_para(cov_det, trackmodel_matrix_parabolic)   
     cov_para_MS_parabolic = get_cov_para(cov_MS, trackmodel_matrix_parabolic)    
 
-    posreso_MS_extrapolation = get_pos_reso_MS_extrapolation(momentum, mass, r, radiation_length_air)   
+    posreso_MS_extrapolation = get_pos_reso_MS_extrapolation_parabolic(momentum, mass, r, radiation_length_air)   
 
     posreso_det_parabolic = get_pos_reso(cov_para_det_parabolic, trackmodel_parabolic, r)
     posreso_MS_parabolic = np.sqrt(get_pos_reso(cov_para_MS_parabolic, trackmodel_parabolic, r)**2 + posreso_MS_extrapolation**2)
@@ -148,7 +171,7 @@ def longitudinal_impactparameter_reso(momentum, mass, N , r):
 
     layer_thickness = get_layers(layerthickness_inner, layerthickness_outer, IU_layer)
     sigma_ScatteringAngle_layer = get_rms_ScatteringAngle(momentum, mass, layer_thickness)
-    air_thickness = get_air_thickness(radiation_length_air, average_layer_radii, IU_layer)
+    air_thickness = get_air_thickness_straight(radiation_length_air, average_layer_radii, IU_layer)
     sigma_ScatteringAngle_air = get_rms_ScatteringAngle(momentum, mass, air_thickness)
     sigma_ScatteringAngle_air[0] = 0
     sigma_ScatteringAngle_total = sigma_ScatteringAngle_layer + sigma_ScatteringAngle_air
@@ -165,7 +188,7 @@ def longitudinal_impactparameter_reso(momentum, mass, N , r):
     cov_para_det_straight = get_cov_para(cov_det, trackmodel_matrix_straight)   
     cov_para_MS_straight = get_cov_para(cov_MS, trackmodel_matrix_straight)  
 
-    posreso_MS_extrapolation = get_pos_reso_MS_extrapolation(momentum, mass, r, radiation_length_air)    
+    posreso_MS_extrapolation = get_pos_reso_MS_extrapolation_straight(momentum, mass, r, radiation_length_air)    
 
     posreso_det_straight = get_pos_reso(cov_para_det_straight, trackmodel_straight, r)
     posreso_MS_straight = np.sqrt(get_pos_reso(cov_para_MS_straight, trackmodel_straight, r)**2 + posreso_MS_extrapolation**2)
@@ -180,7 +203,7 @@ def transverse_momentum_reso(momentum, mass, N):
 
     layer_thickness = get_layers(layerthickness_inner, layerthickness_outer, IU_layer)
     sigma_ScatteringAngle_layer = get_rms_ScatteringAngle(momentum, mass, layer_thickness)
-    air_thickness = get_air_thickness(radiation_length_air, average_layer_radii, IU_layer)
+    air_thickness = get_air_thickness_parabolic(radiation_length_air, average_layer_radii, IU_layer, momentum)
     sigma_ScatteringAngle_air = get_rms_ScatteringAngle(momentum, mass, air_thickness)
     sigma_ScatteringAngle_air[0] = 0
     sigma_ScatteringAngle_total = sigma_ScatteringAngle_layer + sigma_ScatteringAngle_air
