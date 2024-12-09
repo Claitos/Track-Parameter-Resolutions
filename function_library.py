@@ -111,8 +111,8 @@ def g2(x):
 ##########################################################################
 
 
-sigma_detectorresolution_inner_rphi = 5 * 10**-6   #spatial resolution of the ITS2 inner layers in rphi in meters
-sigma_detectorresolution_inner_z = 5 * 10**-6      #spatial resolution of the ITS2 inner layers in z    in meters
+sigma_detectorresolution_inner_rphi = 10 * 10**-6   #spatial resolution of the ITS2 inner layers in rphi in meters
+sigma_detectorresolution_inner_z = 10 * 10**-6      #spatial resolution of the ITS2 inner layers in z    in meters
 
 sigma_detectorresolution_outer_rphi = 10 * 10**-6   #spatial resolution of the ITS2 outer layers in rphi in meters
 sigma_detectorresolution_outer_z = 10 * 10**-6      #spatial resolution of the ITS2 outer layers in z    in meters
