@@ -99,6 +99,15 @@ def get_pos_reso_MS_extrapolation_parabolic(momentum, mass, extrapolation_radius
     return posreso_MS_extrapolation
 
 
+def total_transverse_resolution(det_reso, MS_reso, theta):
+    MS_reso_scaled = MS_reso / np.sqrt(np.sin(np.deg2rad(theta))) 
+    return np.sqrt(det_reso**2 + MS_reso_scaled**2)
+
+def total_longitudinal_resolution(det_reso, MS_reso, theta):
+    MS_reso_scaled = MS_reso / np.sin(np.deg2rad(theta))**1.5
+    return np.sqrt(det_reso**2 + MS_reso_scaled**2)
+
+
 def g0(x):               #  trackmodel helper functions 
     return x**0     
 def g1(x):
@@ -111,11 +120,11 @@ def g2(x):
 ##########################################################################
 
 
-sigma_detectorresolution_inner_rphi = 10 * 10**-6   #spatial resolution of the ITS2 inner layers in rphi in meters
-sigma_detectorresolution_inner_z = 10 * 10**-6      #spatial resolution of the ITS2 inner layers in z    in meters
+sigma_detectorresolution_inner_rphi = 5 * 10**-6   #spatial resolution of the ITS2 inner layers in rphi in meters
+sigma_detectorresolution_inner_z = 5 * 10**-6      #spatial resolution of the ITS2 inner layers in z    in meters
 
-sigma_detectorresolution_outer_rphi = 10 * 10**-6   #spatial resolution of the ITS2 outer layers in rphi in meters
-sigma_detectorresolution_outer_z = 10 * 10**-6      #spatial resolution of the ITS2 outer layers in z    in meters
+sigma_detectorresolution_outer_rphi = 5 * 10**-6   #spatial resolution of the ITS2 outer layers in rphi in meters
+sigma_detectorresolution_outer_z = 5 * 10**-6      #spatial resolution of the ITS2 outer layers in z    in meters
 
 layerthickness_inner = 0.0036   # thickness of an inner detector plane in units of radiation length 0.36%
 layerthickness_outer = 0.0110   # thickness of an outer detector plane in units of radiation length 1.10%
@@ -133,7 +142,7 @@ magnetic_field_strength = 0.5           # strength of magnetic field in Alice in
 ##########################################################################
 
 
-def transverse_impactparameter_reso(momentum, mass, N, r):
+def transverse_impactparameter_reso(momentum, mass, N, r, theta):
     IU_layer = len(average_layer_radii) - N  
     sigma_detectorresolution_rphi = get_layers(sigma_detectorresolution_inner_rphi, sigma_detectorresolution_outer_rphi, IU_layer)
 
@@ -161,11 +170,13 @@ def transverse_impactparameter_reso(momentum, mass, N, r):
     posreso_det_parabolic = get_pos_reso(cov_para_det_parabolic, trackmodel_parabolic, r)
     posreso_MS_parabolic = np.sqrt(get_pos_reso(cov_para_MS_parabolic, trackmodel_parabolic, r)**2 + posreso_MS_extrapolation**2)
 
-    return posreso_det_parabolic, posreso_MS_parabolic
+    posreso_tot_parabolic = total_transverse_resolution(posreso_det_parabolic, posreso_MS_parabolic, theta)
+
+    return posreso_tot_parabolic
 
 
 
-def longitudinal_impactparameter_reso(momentum, mass, N , r):
+def longitudinal_impactparameter_reso(momentum, mass, N , r, theta):
     IU_layer = len(average_layer_radii) - N  
     sigma_detectorresolution_z = get_layers(sigma_detectorresolution_inner_z, sigma_detectorresolution_outer_z, IU_layer)
 
@@ -193,11 +204,13 @@ def longitudinal_impactparameter_reso(momentum, mass, N , r):
     posreso_det_straight = get_pos_reso(cov_para_det_straight, trackmodel_straight, r)
     posreso_MS_straight = np.sqrt(get_pos_reso(cov_para_MS_straight, trackmodel_straight, r)**2 + posreso_MS_extrapolation**2)
 
-    return posreso_det_straight, posreso_MS_straight
+    posreso_tot_straight = total_longitudinal_resolution(posreso_det_straight, posreso_MS_straight, theta)
+
+    return posreso_tot_straight
 
 
 
-def transverse_momentum_reso(momentum, mass, N):
+def transverse_momentum_reso(momentum, mass, N, theta):
     IU_layer = len(average_layer_radii) - N  
     sigma_detectorresolution_rphi = get_layers(sigma_detectorresolution_inner_rphi, sigma_detectorresolution_outer_rphi, IU_layer)
 
@@ -223,15 +236,10 @@ def transverse_momentum_reso(momentum, mass, N):
     momentumreso_det_parabolic = get_momentum_reso(cov_para_det_parabolic, momentum, magnetic_field_strength)
     momentumreso_MS_parabolic = get_momentum_reso(cov_para_MS_parabolic, momentum, magnetic_field_strength)
 
-    return momentumreso_det_parabolic, momentumreso_MS_parabolic
+    momentumreso_tot_parabolic = total_transverse_resolution(momentumreso_det_parabolic, momentumreso_MS_parabolic, theta)
+
+    return momentumreso_tot_parabolic
 
 
 
 
-def total_transverse_resolution(det_reso, MS_reso, theta):
-    MS_reso_scaled = MS_reso / np.sqrt(np.sin(np.deg2rad(theta))) 
-    return np.sqrt(det_reso**2 + MS_reso_scaled**2)
-
-def total_longitudinal_resolution(det_reso, MS_reso, theta):
-    MS_reso_scaled = MS_reso / np.sin(np.deg2rad(theta))**1.5
-    return np.sqrt(det_reso**2 + MS_reso_scaled**2)
