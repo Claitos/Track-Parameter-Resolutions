@@ -36,7 +36,8 @@ class DetectorSetup:
             raise ValueError("The number of layers with hits cannot exceed the total number of layers")
         if N < 0:
             raise ValueError("The number of layers with hits cannot be negative")
-        assert N == int(N), "The number of layers with hits must be an integer"
+        if N != int(N):
+            raise ValueError("The number of layers with hits must be an integer")
         
         self.IU_layer = self.number_of_layers - N
         self.average_layer_radii = self.__average_layer_radii_setup[self.IU_layer:] - self.__average_layer_radii_setup[self.IU_layer]
@@ -69,6 +70,10 @@ class DetectorSetup:
 
 
     def _get_rms_ScatteringAngle(self, momentum: float, mass: float, material_thickness):             # calculates the variance of the scattering angle of a particle with given momentum and mass
+        if momentum < 0:
+            raise ValueError("Momentum cannot be negative")
+        if mass < 0:
+            raise ValueError("Mass cannot be negative")
         energy = np.sqrt(momentum**2 + mass**2)                         # energy of particle in GeV    
         beta = momentum / energy                                        # velocity of particle in units of speed of light c
         f = 0.013 * np.sqrt(material_thickness) * (1 + 0.038*np.log(material_thickness)) 
