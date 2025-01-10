@@ -9,6 +9,7 @@ class DetectorSetup:
         self.radiation_length_medium = radiation_length_medium
         self.magnetic_field_strength = magnetic_field_strength
         self.number_of_layers = len(average_layer_radii)
+        self.MS_in_air = True
 
         if len(average_layer_radii) == len(layerthickness) == len(detector_resolutions_rphi) == len(detector_resolutions_z):
             print("Detector Setup initialized")
@@ -145,11 +146,13 @@ class DetectorSetup:
     def transverse_impact_parameter_reso(self, momentum: float, mass: float, number_of_hits: int, extrapolation_radius: float, polar_angle: float):
         self._get_layers_with_hits(number_of_hits)
 
-        air_thickness = self._get_air_thickness_parabolic(momentum)
-        sigma_ScatteringAngle_air = self._get_rms_ScatteringAngle(momentum, mass, air_thickness)
-        sigma_ScatteringAngle_air[0] = 0
-        sigma_ScatteringAngle_layer = self._get_rms_ScatteringAngle(momentum, mass, self.layerthickness)
-        sigma_ScatteringAngle_total = sigma_ScatteringAngle_layer + sigma_ScatteringAngle_air
+        if self.MS_in_air:
+            air_thickness = self._get_air_thickness_parabolic(momentum)
+            sigma_ScatteringAngle_air = self._get_rms_ScatteringAngle(momentum, mass, air_thickness)
+            sigma_ScatteringAngle_layer = self._get_rms_ScatteringAngle(momentum, mass, self.layerthickness)
+            sigma_ScatteringAngle_total = sigma_ScatteringAngle_layer + sigma_ScatteringAngle_air
+        else:
+            sigma_ScatteringAngle_total = self._get_rms_ScatteringAngle(momentum, mass, self.layerthickness)
 
         cov_det = self._get_cov_det(number_of_hits)
         cov_MS = self._get_cov_MS(number_of_hits, sigma_ScatteringAngle_total)
@@ -161,7 +164,11 @@ class DetectorSetup:
         cov_para_MS = self._get_cov_para(cov_MS)
 
         posreso_det = self._get_pos_reso(cov_para_det, trackmodel_parabolic, extrapolation_radius)
-        posreso_MS = np.sqrt(self._get_pos_reso(cov_para_MS, trackmodel_parabolic, extrapolation_radius)**2 + self._get_pos_reso_MS_extrapolation_parabolic(momentum, mass, extrapolation_radius)**2)
+        
+        if self.MS_in_air:
+            posreso_MS = np.sqrt(self._get_pos_reso(cov_para_MS, trackmodel_parabolic, extrapolation_radius)**2 + self._get_pos_reso_MS_extrapolation_parabolic(momentum, mass, extrapolation_radius)**2)
+        else:
+            posreso_MS = self._get_pos_reso(cov_para_MS, trackmodel_parabolic, extrapolation_radius)
 
         return self._total_transverse_resolution(posreso_det, posreso_MS, polar_angle)
 
@@ -170,11 +177,13 @@ class DetectorSetup:
     def longitudinal_impact_parameter_reso(self, momentum: float, mass: float, number_of_hits: int, extrapolation_radius: float, polar_angle: float):
         self._get_layers_with_hits(number_of_hits)
 
-        air_thickness = self._get_air_thickness_straight()
-        sigma_ScatteringAngle_air = self._get_rms_ScatteringAngle(momentum, mass, air_thickness)
-        sigma_ScatteringAngle_air[0] = 0
-        sigma_ScatteringAngle_layer = self._get_rms_ScatteringAngle(momentum, mass, self.layerthickness)
-        sigma_ScatteringAngle_total = sigma_ScatteringAngle_layer + sigma_ScatteringAngle_air
+        if self.MS_in_air:
+            air_thickness = self._get_air_thickness_straight()
+            sigma_ScatteringAngle_air = self._get_rms_ScatteringAngle(momentum, mass, air_thickness)
+            sigma_ScatteringAngle_layer = self._get_rms_ScatteringAngle(momentum, mass, self.layerthickness)
+            sigma_ScatteringAngle_total = sigma_ScatteringAngle_layer + sigma_ScatteringAngle_air
+        else:
+            sigma_ScatteringAngle_total = self._get_rms_ScatteringAngle(momentum, mass, self.layerthickness)
 
         cov_det = self._get_cov_det(number_of_hits)
         cov_MS = self._get_cov_MS(number_of_hits, sigma_ScatteringAngle_total)
@@ -186,7 +195,11 @@ class DetectorSetup:
         cov_para_MS = self._get_cov_para(cov_MS)
 
         posreso_det = self._get_pos_reso(cov_para_det, trackmodel_straight, extrapolation_radius)
-        posreso_MS = np.sqrt(self._get_pos_reso(cov_para_MS, trackmodel_straight, extrapolation_radius)**2 + self._get_pos_reso_MS_extrapolation_straight(momentum, mass, extrapolation_radius)**2)
+
+        if self.MS_in_air:
+            posreso_MS = np.sqrt(self._get_pos_reso(cov_para_MS, trackmodel_straight, extrapolation_radius)**2 + self._get_pos_reso_MS_extrapolation_straight(momentum, mass, extrapolation_radius)**2)
+        else:
+            posreso_MS = self._get_pos_reso(cov_para_MS, trackmodel_straight, extrapolation_radius)
 
         return self._total_longitudinal_resolution(posreso_det, posreso_MS, polar_angle)
 
@@ -195,11 +208,13 @@ class DetectorSetup:
     def transverse_momentum_reso(self, momentum: float, mass: float, number_of_hits: int, polar_angle: float):
         self._get_layers_with_hits(number_of_hits)
 
-        air_thickness = self._get_air_thickness_parabolic(momentum)
-        sigma_ScatteringAngle_air = self._get_rms_ScatteringAngle(momentum, mass, air_thickness)
-        sigma_ScatteringAngle_air[0] = 0
-        sigma_ScatteringAngle_layer = self._get_rms_ScatteringAngle(momentum, mass, self.layerthickness)
-        sigma_ScatteringAngle_total = sigma_ScatteringAngle_layer + sigma_ScatteringAngle_air
+        if self.MS_in_air:
+            air_thickness = self._get_air_thickness_parabolic(momentum)
+            sigma_ScatteringAngle_air = self._get_rms_ScatteringAngle(momentum, mass, air_thickness)
+            sigma_ScatteringAngle_layer = self._get_rms_ScatteringAngle(momentum, mass, self.layerthickness)
+            sigma_ScatteringAngle_total = sigma_ScatteringAngle_layer + sigma_ScatteringAngle_air
+        else:
+            sigma_ScatteringAngle_total = self._get_rms_ScatteringAngle(momentum, mass, self.layerthickness)
 
         cov_det = self._get_cov_det(number_of_hits)
         cov_MS = self._get_cov_MS(number_of_hits, sigma_ScatteringAngle_total)
