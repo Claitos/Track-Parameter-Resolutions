@@ -74,6 +74,7 @@ class DetectorSetup:
             raise ValueError("Momentum cannot be negative")
         if mass < 0:
             raise ValueError("Mass cannot be negative")
+        
         energy = np.sqrt(momentum**2 + mass**2)                         # energy of particle in GeV    
         beta = momentum / energy                                        # velocity of particle in units of speed of light c
         f = 0.013 * np.sqrt(material_thickness) * (1 + 0.038*np.log(material_thickness)) 
