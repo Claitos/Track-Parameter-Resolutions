@@ -11,6 +11,15 @@ class DetectorSetup:
         self.number_of_layers = len(average_layer_radii)
         self.MS_in_air = True
 
+        if self.radiation_length_medium <= 0:
+            raise ValueError("The radiation length of the medium must be positive")
+        
+        if self.magnetic_field_strength <= 0:
+            raise ValueError("The magnetic field strength must be positive")
+        
+        if self.number_of_layers <= 1:
+            raise ValueError("The number of layers must be greater than 1")
+
         if len(average_layer_radii) == len(layerthickness) == len(detector_resolutions_rphi) == len(detector_resolutions_z):
             print("Detector Setup initialized")
         else:
@@ -48,6 +57,12 @@ class DetectorSetup:
 
     def _get_circ_arc_length(self, momentum: float, chord_length):                                                  # calculates the length of a circular arc with given particle momentum and chord length
         radius_of_curvature = 1/(0.3*self.magnetic_field_strength) * momentum                              # radius of the curvature of the particle trajectory in meters
+        try:
+            if chord_length.all() > 2*radius_of_curvature:
+                raise ValueError("The distances between detector layers cannot exceed 2*radius of curvature of the particle track inside the magnetic field")
+        except:
+            if chord_length > 2*radius_of_curvature:
+                raise ValueError("The extrapolation radius cannot exceed 2*radius of curvature of the particle track inside the magnetic field")
         return 2 * radius_of_curvature * np.arcsin(chord_length / (2 * radius_of_curvature))                # length of the circular arc
     
         
@@ -144,6 +159,7 @@ class DetectorSetup:
     def _total_longitudinal_resolution(self, det_reso, MS_reso, theta: float):
         MS_reso_scaled = MS_reso / np.sin(np.deg2rad(theta))**1.5
         return np.sqrt(det_reso**2 + MS_reso_scaled**2)
+    
 
 ##########################################################################
 #############            Main Functions            #######################
