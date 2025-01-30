@@ -165,7 +165,7 @@ class DetectorSetup:
 #############            Main Functions            #######################
 ##########################################################################   
 
-    def transverse_impact_parameter_reso(self, momentum: float, mass: float, number_of_hits: int, extrapolation_radius: float, polar_angle: float):
+    def transverse_track_position_uncertainty(self, momentum: float, mass: float, number_of_hits: int, extrapolation_radius: float, polar_angle: float):
         self._get_layers_with_hits(number_of_hits)
 
         if self.MS_in_air:
@@ -196,7 +196,7 @@ class DetectorSetup:
 
 
 
-    def longitudinal_impact_parameter_reso(self, momentum: float, mass: float, number_of_hits: int, extrapolation_radius: float, polar_angle: float):
+    def longitudinal_track_position_uncertainty(self, momentum: float, mass: float, number_of_hits: int, extrapolation_radius: float, polar_angle: float):
         self._get_layers_with_hits(number_of_hits)
 
         if self.MS_in_air:
