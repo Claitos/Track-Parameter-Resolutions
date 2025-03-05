@@ -1,5 +1,5 @@
 ## My Hiwi Project
 ### Analytical Calculation of track position and transverse momentum uncertainties
 
-contains one python files which contains the logic and one show notebook which explains the functionality.
+Contains one python file "function_libary_OOP" which contains the logic and one show notebook which explains the functionality.
 
