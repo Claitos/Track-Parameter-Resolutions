@@ -1,7 +1,19 @@
 import numpy as np
 
 class DetectorSetup:
-    def __init__(self, average_layer_radii: list, layerthickness: list, detector_resolutions_rphi: list, detector_resolutions_z: list, radiation_length_medium: float, magnetic_field_strength: float):
+    def __init__(self, average_layer_radii: list[float], layerthickness: list[float], detector_resolutions_rphi: list[float], detector_resolutions_z: list[float], radiation_length_medium: float, magnetic_field_strength: float):
+
+        """Initializes a detector setup.
+
+        Ordered arguments:
+        - Radial positions of each detector layer in meters. Can be a list or numpy array.
+        - Thickness of each detector layer in units of radiation length (spatial thickness of layer divided by the radiation length of the detector material). Can be a list or numpy array.
+        - Spatial resolution of each detector layer in transversal direction in meters. Can be a list or numpy array.
+        - Spatial resolution of each detector layer in longitudinal direction in meters. Can be a list or numpy array.
+        - Radiation length of the medium in between the layers in meters (for air : 303.9)
+        - Strength of the magentic field in Tesla
+        """
+         
         self.__average_layer_radii_setup = np.array(average_layer_radii)
         self.__layerthickness_setup = np.array(layerthickness)
         self.__detector_resolutions_rphi_setup = np.array(detector_resolutions_rphi)
@@ -9,7 +21,7 @@ class DetectorSetup:
         self.radiation_length_medium = radiation_length_medium
         self.magnetic_field_strength = magnetic_field_strength
         self.number_of_layers = len(average_layer_radii)
-        self.MS_in_air = True
+        self.MS_in_medium = True
 
         if self.radiation_length_medium <= 0:
             raise ValueError("The radiation length of the medium must be positive")
@@ -23,7 +35,7 @@ class DetectorSetup:
         if len(average_layer_radii) == len(layerthickness) == len(detector_resolutions_rphi) == len(detector_resolutions_z):
             print("Detector Setup initialized")
         else:
-            raise ValueError("The lists do not have the same length")
+            raise ValueError("The lists do not have the same length (the number of layers must be the same for all lists)")
         
         def _g0(x):               #  trackmodel helper functions 
             return x**0     
@@ -165,10 +177,21 @@ class DetectorSetup:
 #############            Main Functions            #######################
 ##########################################################################   
 
-    def transverse_track_position_uncertainty(self, momentum: float, mass: float, number_of_hits: int, extrapolation_radius: float, polar_angle: float):
+    def transverse_track_position_uncertainty(self, momentum: float, mass: float, number_of_hits: int, extrapolation_radius: float, polar_angle: float) -> float:
+
+        """Calculates the track position uncertainty in the transversal direction of a defined track in the detector setup. Returned value is in meters.
+
+        Ordered arguments:
+        - Mass of the particle in GeV/c
+        - Momentum of the particle in GeV/c²
+        - Number of layers in which the particle has hits (in the current implementation this will the correspond to the last n layers which were defined earlier)
+        - Extrapolation length in meters (in the current implementation this is defined away from layers with hits)
+        - Polar angle of the particle in the detector setup in degrees
+        """
+
         self._get_layers_with_hits(number_of_hits)
 
-        if self.MS_in_air:
+        if self.MS_in_medium:
             air_thickness = self._get_air_thickness_parabolic(momentum)
             sigma_ScatteringAngle_air = self._get_rms_ScatteringAngle(momentum, mass, air_thickness)
             sigma_ScatteringAngle_layer = self._get_rms_ScatteringAngle(momentum, mass, self.layerthickness)
@@ -187,7 +210,7 @@ class DetectorSetup:
 
         posreso_det = self._get_pos_reso(cov_para_det, trackmodel_parabolic, extrapolation_radius)
         
-        if self.MS_in_air:
+        if self.MS_in_medium:
             posreso_MS = np.sqrt(self._get_pos_reso(cov_para_MS, trackmodel_parabolic, extrapolation_radius)**2 + self._get_pos_reso_MS_extrapolation_parabolic(momentum, mass, extrapolation_radius)**2)
         else:
             posreso_MS = self._get_pos_reso(cov_para_MS, trackmodel_parabolic, extrapolation_radius)
@@ -196,10 +219,21 @@ class DetectorSetup:
 
 
 
-    def longitudinal_track_position_uncertainty(self, momentum: float, mass: float, number_of_hits: int, extrapolation_radius: float, polar_angle: float):
+    def longitudinal_track_position_uncertainty(self, momentum: float, mass: float, number_of_hits: int, extrapolation_radius: float, polar_angle: float) -> float:
+
+        """Calculates the track position uncertainty in the longitudinal direction of a defined track in the detector setup. Returned value is in meters.
+
+        Ordered arguments:
+        - Mass of the particle in GeV/c
+        - Momentum of the particle in GeV/c²
+        - Number of layers in which the particle has hits (in the current implementation this will the correspond to the last n layers which were defined earlier)
+        - Extrapolation length in meters (in the current implementation this is defined away from layers with hits)
+        - Polar angle of the particle in the detector setup in degrees
+        """
+
         self._get_layers_with_hits(number_of_hits)
 
-        if self.MS_in_air:
+        if self.MS_in_medium:
             air_thickness = self._get_air_thickness_straight()
             sigma_ScatteringAngle_air = self._get_rms_ScatteringAngle(momentum, mass, air_thickness)
             sigma_ScatteringAngle_layer = self._get_rms_ScatteringAngle(momentum, mass, self.layerthickness)
@@ -218,7 +252,7 @@ class DetectorSetup:
 
         posreso_det = self._get_pos_reso(cov_para_det, trackmodel_straight, extrapolation_radius)
 
-        if self.MS_in_air:
+        if self.MS_in_medium:
             posreso_MS = np.sqrt(self._get_pos_reso(cov_para_MS, trackmodel_straight, extrapolation_radius)**2 + self._get_pos_reso_MS_extrapolation_straight(momentum, mass, extrapolation_radius)**2)
         else:
             posreso_MS = self._get_pos_reso(cov_para_MS, trackmodel_straight, extrapolation_radius)
@@ -227,10 +261,20 @@ class DetectorSetup:
 
 
 
-    def transverse_momentum_reso(self, momentum: float, mass: float, number_of_hits: int, polar_angle: float):
+    def transverse_momentum_reso(self, momentum: float, mass: float, number_of_hits: int, polar_angle: float)-> float:
+
+        """Calculates the realtive transverse momentum uncertainty (transverse momentum uncertainty divided by transverse momentum) of a defined track in the detector setup. Returned value is unitless.
+
+        Ordered arguments:
+        - Mass of the particle in GeV/c
+        - Momentum of the particle in GeV/c²
+        - Number of layers in which the particle has hits (in the current implementation this will the correspond to the last n layers which were defined earlier)
+        - Polar angle of the particle in the detector setup in degrees
+        """
+
         self._get_layers_with_hits(number_of_hits)
 
-        if self.MS_in_air:
+        if self.MS_in_medium:
             air_thickness = self._get_air_thickness_parabolic(momentum)
             sigma_ScatteringAngle_air = self._get_rms_ScatteringAngle(momentum, mass, air_thickness)
             sigma_ScatteringAngle_layer = self._get_rms_ScatteringAngle(momentum, mass, self.layerthickness)
