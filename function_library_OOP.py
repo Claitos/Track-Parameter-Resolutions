@@ -22,6 +22,7 @@ class DetectorSetup:
         self.magnetic_field_strength = magnetic_field_strength
         self.number_of_layers = len(average_layer_radii)
         self.MS_in_medium = True
+        self.logging = False
 
         if self.radiation_length_medium <= 0:
             raise ValueError("The radiation length of the medium must be positive")
@@ -47,7 +48,7 @@ class DetectorSetup:
         self.__g0 = _g0
         self.__g1 = _g1
         self.__g2 = _g2
-        
+
 ##########################################################################
 #############            Helper Functions            #####################
 ##########################################################################
@@ -173,6 +174,41 @@ class DetectorSetup:
         return np.sqrt(det_reso**2 + MS_reso_scaled**2)
     
 
+    def _logging_pos(self, momentum, mass, number_of_hits, extrapolation_radius, polar_angle, mediumthickness, sigma_scatteringangle_medium, sigma_scatteringangle_layer, sigma_scatteringangle_total, cov_det, cov_MS, pos_uncertainty_det, pos_uncertainty_MS):               # logging helper function
+        np.set_printoptions(precision=5)
+        with open("log.txt", "a") as f:
+            f.write("Logging initialized\n")
+            f.write(f"mass: {mass} , momentum: {momentum} , number of hits: {number_of_hits}, extrapolation radius: {extrapolation_radius}, polar angle: {polar_angle} \n")
+            f.write(f"medium thickness: {mediumthickness} \n")
+            f.write(f"sigma scattering angle medium: {sigma_scatteringangle_medium} \n")
+            f.write(f"sigma scattering angle layer: {sigma_scatteringangle_layer} \n")
+            f.write(f"sigma scattering angle total: {sigma_scatteringangle_total} \n")
+            f.write(f"covariance matrix due to detector resolution: \n {cov_det} \n")
+            f.write(f"covariance matrix due to multiple scattering: \n {cov_MS} \n")
+            f.write(f"trackmodel matrix used: \n {self.trackmodel_matrix.T} \n")
+            f.write(f"position uncertainty due to detector resolution: {pos_uncertainty_det} \n")
+            f.write(f"position uncertainty due to multiple scattering: {pos_uncertainty_MS} \n")
+            f.write("Logging finished\n")
+            f.write("\n")
+
+    def _logging_pT(self, momentum, mass, number_of_hits, polar_angle, mediumthickness, sigma_scatteringangle_medium, sigma_scatteringangle_layer, sigma_scatteringangle_total, cov_det, cov_MS, pos_uncertainty_det, pos_uncertainty_MS):               # logging helper function
+        np.set_printoptions(precision=5)
+        with open("log.txt", "a") as f:
+            f.write("Logging initialized\n")
+            f.write(f"mass: {mass} , momentum: {momentum} , number of hits: {number_of_hits}, polar angle: {polar_angle} \n")
+            f.write(f"medium thickness: {mediumthickness} \n")
+            f.write(f"sigma scattering angle medium: {sigma_scatteringangle_medium} \n")
+            f.write(f"sigma scattering angle layer: {sigma_scatteringangle_layer} \n")
+            f.write(f"sigma scattering angle total: {sigma_scatteringangle_total} \n")
+            f.write(f"covariance matrix due to detector resolution: \n {cov_det} \n")
+            f.write(f"covariance matrix due to multiple scattering: \n {cov_MS} \n")
+            f.write(f"trackmodel matrix used: \n {self.trackmodel_matrix.T} \n")
+            f.write(f"position uncertainty due to detector resolution: {pos_uncertainty_det} \n")
+            f.write(f"position uncertainty due to multiple scattering: {pos_uncertainty_MS} \n")
+            f.write("Logging finished\n")
+            f.write("\n")
+    
+
 ##########################################################################
 #############            Main Functions            #######################
 ##########################################################################   
@@ -214,6 +250,9 @@ class DetectorSetup:
             posreso_MS = np.sqrt(self._get_pos_reso(cov_para_MS, trackmodel_parabolic, extrapolation_radius)**2 + self._get_pos_reso_MS_extrapolation_parabolic(momentum, mass, extrapolation_radius)**2)
         else:
             posreso_MS = self._get_pos_reso(cov_para_MS, trackmodel_parabolic, extrapolation_radius)
+
+        if self.logging and self.MS_in_medium:
+            self._logging_pos(momentum, mass, number_of_hits, extrapolation_radius, polar_angle, air_thickness, sigma_ScatteringAngle_air, sigma_ScatteringAngle_layer, sigma_ScatteringAngle_total, cov_det, cov_MS, posreso_det, posreso_MS)
 
         return self._total_transverse_resolution(posreso_det, posreso_MS, polar_angle)
 
@@ -257,6 +296,9 @@ class DetectorSetup:
         else:
             posreso_MS = self._get_pos_reso(cov_para_MS, trackmodel_straight, extrapolation_radius)
 
+        if self.logging and self.MS_in_medium:
+            self._logging_pos(momentum, mass, number_of_hits, extrapolation_radius, polar_angle, air_thickness, sigma_ScatteringAngle_air, sigma_ScatteringAngle_layer, sigma_ScatteringAngle_total, cov_det, cov_MS, posreso_det, posreso_MS)
+
         return self._total_longitudinal_resolution(posreso_det, posreso_MS, polar_angle)
 
 
@@ -293,6 +335,9 @@ class DetectorSetup:
 
         momentumreso_det = self._get_momentum_reso(cov_para_det, momentum)
         momentumreso_MS = self._get_momentum_reso(cov_para_MS, momentum)
+
+        if self.logging and self.MS_in_medium:
+            self._logging_pT(momentum, mass, number_of_hits, polar_angle, air_thickness, sigma_ScatteringAngle_air, sigma_ScatteringAngle_layer, sigma_ScatteringAngle_total, cov_det, cov_MS, momentumreso_det, momentumreso_MS)
 
         return self._total_transverse_resolution(momentumreso_det, momentumreso_MS, polar_angle)
 
