@@ -183,7 +183,7 @@ class DetectorSetup:
 
         Ordered arguments:
         - Mass of the particle in GeV/c
-        - Momentum of the particle in GeV/c²
+        - Transverse momentum of the particle in GeV/c²
         - Number of layers in which the particle has hits (in the current implementation this will the correspond to the last n layers which were defined earlier)
         - Extrapolation length in meters (in the current implementation this is defined away from layers with hits)
         - Polar angle of the particle in the detector setup in degrees
@@ -225,7 +225,7 @@ class DetectorSetup:
 
         Ordered arguments:
         - Mass of the particle in GeV/c
-        - Momentum of the particle in GeV/c²
+        - Transverse momentum of the particle in GeV/c²
         - Number of layers in which the particle has hits (in the current implementation this will the correspond to the last n layers which were defined earlier)
         - Extrapolation length in meters (in the current implementation this is defined away from layers with hits)
         - Polar angle of the particle in the detector setup in degrees
@@ -267,7 +267,7 @@ class DetectorSetup:
 
         Ordered arguments:
         - Mass of the particle in GeV/c
-        - Momentum of the particle in GeV/c²
+        - Transverse momentum of the particle in GeV/c²
         - Number of layers in which the particle has hits (in the current implementation this will the correspond to the last n layers which were defined earlier)
         - Polar angle of the particle in the detector setup in degrees
         """
