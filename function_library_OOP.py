@@ -340,6 +340,59 @@ class DetectorSetup:
             self._logging_pT(momentum, mass, number_of_hits, polar_angle, air_thickness, sigma_ScatteringAngle_air, sigma_ScatteringAngle_layer, sigma_ScatteringAngle_total, cov_det, cov_MS, momentumreso_det, momentumreso_MS)
 
         return self._total_transverse_resolution(momentumreso_det, momentumreso_MS, polar_angle)
+    
+
+
+
+def save_to_txt(filename: str, data: list[list[list[float]]]):
+        
+        """Saves a nested list a more dimensional numpy array to a txt file. The number of dimensions or number of times the list is nested can not exceed five.
+            The saved txt file cotains one line with the shape of the saved data and one line with the flattened data values. The values are separeted by one space.
+
+        Ordered arguments:
+        - The name of the created txt file. Always overwrites a preexisting file. A specific filepath can also be declared to not save the file in the current directory.
+        - The data points/values. Can be a nested list or multidimensional numpy array of floats.
+        """
+
+        np.set_printoptions(precision=8)
+        shape = data.shape
+        length_of_nesting = len(shape)
+        if length_of_nesting > 5:
+            raise ValueError("The data is more than 5 dimensional. This function only allows for nesting up to five times")
+        with open(filename, "w") as f:
+            f.write("Shape of the data: {}\n".format(shape))
+
+            if length_of_nesting == 1:
+                for i in range(shape[0]):
+                    f.write("{0:.8f} ".format(data[i]))
+
+            if length_of_nesting == 2:
+                for i in range(shape[0]):
+                    for j in range(shape[1]):
+                        f.write("{0:.8f} ".format(data[i][j]))
+            
+            if length_of_nesting == 3:
+                for i in range(shape[0]):
+                    for j in range(shape[1]):
+                        for k in range(shape[2]):
+                            f.write("{0:.8f} ".format(data[i][j][k]))
+
+            if length_of_nesting == 4:
+                for i in range(shape[0]):
+                    for j in range(shape[1]):
+                        for k in range(shape[2]):
+                            for l in range(shape[3]):
+                                f.write("{0:.8f} ".format(data[i][j][k][l]))
+
+            if length_of_nesting == 5:
+                for i in range(shape[0]):
+                    for j in range(shape[1]):
+                        for k in range(shape[2]):
+                            for l in range(shape[3]):
+                                for m in range(shape[4]):
+                                    f.write("{0:.8f} ".format(data[i][j][k][l][m]))
+
+        print("Logging finished")
 
 
 
