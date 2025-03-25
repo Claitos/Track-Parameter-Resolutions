@@ -361,7 +361,7 @@ def save_to_txt(filename: str, data):
         f.write("Shape of the data: {}\n".format(shape))
         f.write(" ".join(f"{x:.8f}" for x in data.ravel()))
     
-    print("Logging finished")
+    print("Data saved to", filename)
 
 
 

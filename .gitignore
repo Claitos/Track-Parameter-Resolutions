@@ -44,3 +44,6 @@ Transverse_Momentum_Plots/Proton_pT_angle.png
 Transverse_Momentum_Plots/Proton_pT.png
 log.txt
 Transverse_ImpactParameter_Plots/proton_rphi_4hits.txt
+Longitudinal_ImpactParameter_Plots/pion_z_4hits.txt
+Longitudinal_ImpactParameter_Plots/proton_z_4hits.txt
+Transverse_ImpactParameter_Plots/pion_rphi_4hits.txt
