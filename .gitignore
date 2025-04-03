@@ -51,3 +51,7 @@ Longitudinal_ImpactParameter_Plots/pion_z_7hits.txt
 Longitudinal_ImpactParameter_Plots/proton_z_7hits.txt
 Transverse_ImpactParameter_Plots/pion_rphi_7hits.txt
 Transverse_ImpactParameter_Plots/proton_rphi_7hits.txt
+MS_in_air_Plots/Proton_rad_length_diff_scaled.png
+MS_in_air_Plots/Proton_rad_length_diff.png
+MS_in_air_Plots/Proton_rad_length_wo.png
+MS_in_air_Plots/Proton_rad_length.png
