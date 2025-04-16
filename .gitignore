@@ -55,3 +55,10 @@ MS_in_air_Plots/Proton_rad_length_diff_scaled.png
 MS_in_air_Plots/Proton_rad_length_diff.png
 MS_in_air_Plots/Proton_rad_length_wo.png
 MS_in_air_Plots/Proton_rad_length.png
+Eta/pion_rphi_4hits.txt
+Eta/pion_z_4hits.txt
+Eta/proton_rphi_4hits.txt
+Eta/Proton_rphi.png
+Eta/proton_z_4hits.txt
+.gitignore
+Dependence_on_Eta.ipynb
