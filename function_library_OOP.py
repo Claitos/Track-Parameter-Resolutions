@@ -72,7 +72,7 @@ class DetectorSetup:
         radius_of_curvature = 1/(0.3*self.magnetic_field_strength) * momentum                              # radius of the curvature of the particle trajectory in meters
         try:
             if chord_length.all() > 2*radius_of_curvature:
-                raise ValueError("The distances between detector layers cannot exceed 2*radius of curvature of the particle track inside the magnetic field")
+                raise ValueError(f"The distances between detector layers cannot exceed 2*radius of curvature of the particle track inside the magnetic field. The most likely reason for this is that the specified transverse momentum: {momentum} GeV/c is to low.")
         except:
             if chord_length > 2*radius_of_curvature:
                 raise ValueError("The extrapolation radius cannot exceed 2*radius of curvature of the particle track inside the magnetic field")
