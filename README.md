@@ -13,24 +13,6 @@ The repository was originally developed to gain an intuitive understanding of tr
 
 ---
 
-# Motivation
-
-Modern tracking detectors are often evaluated using full detector simulations. While these simulations provide realistic results, they can make it difficult to understand *why* a particular resolution is obtained.
-
-This project takes a complementary approach:
-
-Instead of simulating every detector response in detail, it uses analytical covariance propagation to isolate the dominant effects:
-
-1. Finite detector hit resolution
-2. Multiple Coulomb scattering
-3. Detector geometry
-4. Magnetic field strength
-5. Number of measured space points
-
-The goal is not maximum realism but maximum insight.
-
----
-
 # Physical Model
 
 The framework models a charged particle traversing a layered silicon detector inside a magnetic field.
@@ -42,101 +24,7 @@ For each detector layer, the following quantities are specified:
 * Transverse hit resolution
 * Longitudinal hit resolution
 
-From these inputs, the code constructs covariance matrices describing:
-
-## Detector Measurement Uncertainty
-
-The detector contribution is represented by a diagonal covariance matrix
-
-[
-C_{\mathrm{det}}
-]
-
-whose entries are given by the intrinsic sensor resolutions.
-
-## Multiple Scattering
-
-Material interactions are modeled using the Highland formula
-
-[
-\sigma_{\theta}
-===============
-
-\frac{13,\mathrm{MeV}}{\beta p}
-\sqrt{\frac{x}{X_0}}
-\left(
-1 + 0.038\ln\frac{x}{X_0}
-\right)
-]
-
-which is used to construct a covariance matrix
-
-[
-C_{\mathrm{MS}}
-]
-
-describing correlated scattering effects between detector layers.
-
-## Track Model
-
-Two track parameterizations are used:
-
-### Longitudinal Projection
-
-Straight-line model
-
-[
-z(r)=a+br
-]
-
-### Transverse Projection
-
-Parabolic approximation of a curved trajectory
-
-[
-r\phi(r)=a+br+\frac{c}{2}r^2
-]
-
-which approximates the circular motion induced by the magnetic field.
-
----
-
-# Covariance Propagation
-
-Given the track model matrix
-
-[
-G
-]
-
-and a measurement covariance matrix
-
-[
-C
-]
-
-the parameter covariance matrix is obtained via
-
-[
-C_{\mathrm{par}}
-================
-
-\left(
-G^T C^{-1} G
-\right)^{-1}
-]
-
-From this matrix the framework derives:
-
-* Position uncertainties
-* Extrapolation uncertainties
-* Momentum resolution
-
-at arbitrary radii.
-
----
-
-# Features
+From this the following features can be calculated:
 
 ## Position Resolution Studies
 
@@ -222,17 +110,8 @@ where:
 
 # Notebook Walkthrough
 
-The accompanying notebook demonstrates:
-
-1. Construction of detector geometries
-2. Definition of material budgets
-3. Resolution calculations
-4. Momentum dependence studies
-5. Multiple-scattering dominated regimes
-6. Detector-resolution dominated regimes
-7. Interpretation of covariance matrices
-
-The notebook is intended to be educational and can be read sequentially as an introduction to analytical tracking-performance estimation.
+The accompanying notebook demonstrates the use of the Python code.
+The notebook is intended to be educational and can be read sequentially together with a paper or other literature on analytical tracking-performance estimation.
 
 ---
 
